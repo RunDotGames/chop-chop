@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.rundotgames.unitybutler": {
+      "version": "git@github.com:RunDotGames/unity-butler.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "bf87091e912a688bd3829885d93a65a8f408e077"
+    },
     "com.rundotgames.unityinput": {
       "version": "file:F:/Projects/rdg-unity-input",
       "depth": 0,

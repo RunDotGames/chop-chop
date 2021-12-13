@@ -20,6 +20,10 @@ namespace RDG.Chop_Chop.Scripts.Movement {
 
   public class Motor {
 
+    enum JumpState {
+      Able, InProgress, Exhausted
+    }
+    
     public event Action OnGrounded;
     
     class MovementInfo {
@@ -41,7 +45,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     
     private float fallVelocity;
     private float jumpDuration;
-    private bool canJump;
+    private JumpState jumpState;
     private bool isGrounded;
     
     private static readonly RaycastHit[] HitCache ={
@@ -116,18 +120,22 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     }
 
     private MovementInfo JumpUp(MovementInfo state) {
-      if (!director.GetJumpRequested()) {
+      if (director.GetJumpRequested() && jumpState == JumpState.Able) {
+        jumpState = JumpState.InProgress;
+      }
+
+      if (jumpState != JumpState.InProgress) {
         return state;
       }
       
-      canJump = canJump && director.GetJumpRequested();
-      if (!canJump) {
+      if (!director.GetJumpRequested()) {
+        jumpState = JumpState.Exhausted;
         return state;
       }
       
       var maxJump = movementConfig.jumpCurve.keys.Last().time;
       if (jumpDuration > maxJump) {
-        canJump = false;
+        jumpState = JumpState.Exhausted;
         return state;
       }
       
@@ -142,7 +150,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       }
 
       state.Position = HitCache[hitIndex].point - heightOffset;
-      canJump = false;
+      jumpState = JumpState.Exhausted;
       return state;
     }
 
@@ -242,8 +250,8 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       info = MoveForward(info);
       info = FallDown(info);
 
-      transform.position = info.Position;
-      transform.rotation = info.Rotation;
+      body.MovePosition(info.Position);
+      body.MoveRotation(info.Rotation);
       
       var wasGrounded = isGrounded;
       isGrounded = info.IsGrounded;
@@ -251,7 +259,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
         OnGrounded?.Invoke();
       }
       if (isGrounded && !director.GetJumpRequested()) {
-        canJump = true;
+        jumpState = JumpState.Able;
       }
     }
   }

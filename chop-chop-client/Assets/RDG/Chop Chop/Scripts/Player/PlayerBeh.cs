@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RDG.Chop_Chop.Scripts.Camera;
 using RDG.Chop_Chop.Scripts.Movement;
 using UnityEngine;
 using RDG.UnityInput;
@@ -8,6 +9,7 @@ namespace RDG.Chop_Chop.Scripts.Player {
 
     [SerializeField] private KeyActionsSo keyActions;
     [SerializeField] private MovementSo movement;
+    [SerializeField] private CameraSo cameras;
     [SerializeField] private MotorConfig motorConfig;
 
     private Vector2 currentDirectionX;
@@ -47,6 +49,8 @@ namespace RDG.Chop_Chop.Scripts.Player {
       
       yStack = new KeyActionStack(keyActions, YAxisMap.Keys.ToArray());
       yStack.OnStackChange += HandleYMovementChange;
+      
+      cameras.SetFollowed(transform);
     }
 
     public void OnDestroy() {
@@ -72,7 +76,14 @@ namespace RDG.Chop_Chop.Scripts.Player {
     }
     
     public Vector2 GetDirection() {
-      return (currentDirectionX + currentDirectionY).normalized;
+      var inCamSpace = cameras.GameCamera.TransformVector(new Vector3(currentDirectionX.x, 0, currentDirectionY.y));
+      Debug.Log(inCamSpace);
+      var normal =  (currentDirectionX + currentDirectionY).normalized;
+      var camForward = Vector3.ProjectOnPlane(cameras.GameCamera.forward, Vector3.up);
+      var myForward = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+      var rotation = Quaternion.FromToRotation(camForward, myForward);
+      var dir3 = rotation * normal;
+      return new Vector2(inCamSpace.x, inCamSpace.z).normalized;
     }
 
     public bool GetJumpRequested() {

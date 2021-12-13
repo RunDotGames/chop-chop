@@ -15,9 +15,32 @@ MonoBehaviour:
   config:
     groundLayerName: MovementBounds
     groundCheckDistance: 0.1
-    groundStickyFactor: 5
     checkBackupDistance: 0.5
     drawDebug: 1
     fallRate: 0.5
     fallMaxSpeed: 10
-    wallHeightCheck: 0.01
+    wallHeightCheck: 0.2
+    jumpCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0.31363702
+        outSlope: 0.31363702
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.060444444
+      - serializedVersion: 3
+        time: 0.25
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.062222242
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
