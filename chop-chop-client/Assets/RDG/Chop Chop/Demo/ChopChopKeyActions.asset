@@ -28,3 +28,9 @@ MonoBehaviour:
   - action: 6
     key: 32
     mouseButton: -1
+  - action: 7
+    key: 276
+    mouseButton: -1
+  - action: 8
+    key: 275
+    mouseButton: -1
