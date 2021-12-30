@@ -1611,7 +1611,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1251845383}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.23, y: 0.84, z: 0}
+  m_LocalPosition: {x: -9.23, y: 0.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 332741067}
@@ -1634,6 +1634,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyActions: {fileID: 11400000, guid: 6a7b51bfd07c47b4aa74d1d4f30ee3e9, type: 2}
   movement: {fileID: 11400000, guid: 3224bdfb64bc8484892850a9d2b33f68, type: 2}
+  combat: {fileID: 11400000, guid: 2ed0f3e67dd143c4b8b2430d4d14d66a, type: 2}
   cameras: {fileID: 11400000, guid: 2c25986d493ec12458493ef74af4b386, type: 2}
   motorConfig:
     moveSpeed: 20
@@ -1644,6 +1645,10 @@ MonoBehaviour:
   motorAnimConfig:
     idleAnimName: Idle
     runningAnimName: Running
+  attackerConfig:
+    attackAnimName: Attacking
+    attackSpeed: 1
+    attackDelayFactor: 0.5
 --- !u!54 &1251845386
 Rigidbody:
   m_ObjectHideFlags: 0

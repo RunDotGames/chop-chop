@@ -16,7 +16,7 @@ MonoBehaviour:
     groundLayerName: MovementBounds
     groundCheckDistance: 0.1
     checkBackupDistance: 0.5
-    drawDebug: 1
+    drawDebug: 0
     fallRate: 0.5
     fallMaxSpeed: 10
     wallHeightCheck: 0.2
