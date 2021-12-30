@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace RDG.Chop_Chop.Scripts.Camera {
 
+  public interface CameraFollowable {
+    Vector3 GetTrackingPoint();
+  }
+  
   [Serializable]
   public class CameraConfig {
     public Vector2 followRotation = Vector2.up + Vector2.right;
@@ -15,11 +19,11 @@ namespace RDG.Chop_Chop.Scripts.Camera {
 
     public CameraConfig config;
     public Transform GameCamera { get; set; }
-    private Transform followed;
+    private CameraFollowable followed;
     private float swivel;
 
     
-    public void SetFollowed(Transform aFollowed) {
+    public void SetFollowed(CameraFollowable aFollowed) {
       followed = aFollowed;
     }
 
@@ -28,7 +32,7 @@ namespace RDG.Chop_Chop.Scripts.Camera {
         return;
       }
 
-      var followedPosition = followed.position;
+      var followedPosition = followed.GetTrackingPoint();
       var gameCameraToPos = followedPosition + (Quaternion.Euler(config.followRotation + (Vector2.up * swivel)) * Vector3.forward) * config.followDistance;
       var gameCameraCurrentPos = GameCamera.position;
       var forward = followedPosition - gameCameraCurrentPos;

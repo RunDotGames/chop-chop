@@ -25,7 +25,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
 
     [SerializeField] private MovementConfig config;
 
-    private readonly Dictionary<String, Ground> nameToGround = new Dictionary<string, Ground>();
+    private readonly Dictionary<string, Ground> nameToGround = new Dictionary<string, Ground>();
 
 
     public Motor NewMotor(MotorConfig motorConfig, Rigidbody body, MotorDirector director) {

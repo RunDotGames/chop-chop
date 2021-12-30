@@ -17,7 +17,10 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       ground.Id = Guid.NewGuid();
       ground.Collider = GetComponentInChildren<Collider>();
       ground.Collider.name = "ground: " + ground.Id;
-      GetComponentInChildren<Rigidbody>().isKinematic = true;
+      var body = GetComponentInChildren<Rigidbody>();
+      if (body != null) {
+        body.isKinematic = true;
+      } 
       movement.AddGround(ground);
     }
 

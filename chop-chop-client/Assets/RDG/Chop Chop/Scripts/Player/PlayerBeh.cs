@@ -1,23 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RDG.Chop_Chop.Scripts.Animation;
 using RDG.Chop_Chop.Scripts.Camera;
+using RDG.Chop_Chop.Scripts.Combat;
 using RDG.Chop_Chop.Scripts.Movement;
 using UnityEngine;
 using RDG.UnityInput;
 namespace RDG.Chop_Chop.Scripts.Player {
-  public class PlayerBeh : MonoBehaviour, MotorDirector {
+  public class PlayerBeh : MonoBehaviour, MotorDirector, CameraFollowable {
 
     [SerializeField] private KeyActionsSo keyActions;
     [SerializeField] private MovementSo movement;
+    [SerializeField] private CombatSo combat;
     [SerializeField] private CameraSo cameras;
     [SerializeField] private MotorConfig motorConfig;
+    [SerializeField] private MotorAnimatorConfig motorAnimConfig;
+    [SerializeField] private CombatAttackConfig attackerConfig;
 
     private Vector2 currentDirectionX;
     private Vector2 currentDirectionY;
     private KeyActionStack xStack;
     private KeyActionStack yStack;
     private KeyActionFilter jumpFilter;
+    private KeyActionFilter attackFilter;
     private Motor motor;
+    private AnimationTriggerController anim;
     private bool isJumping;
 
     private static readonly Dictionary<KeyAction, Vector2> XAxisMap = new Dictionary<KeyAction, Vector2>(){
@@ -36,9 +43,16 @@ namespace RDG.Chop_Chop.Scripts.Player {
         KeyAction.MoveBack, Vector2.down
       }
     };
+    private CombatAttacker attacker;
+    private CombatTarget target;
+    
 
     public void Start() {
       motor = movement.NewMotor(motorConfig, GetComponentInChildren<Rigidbody>(), this);
+      var animator = GetComponentInChildren<Animator>();
+      anim = new AnimationTriggerController(animator,
+        MotorAnimTriggers.GetTriggers(motor, motorAnimConfig)
+      );
       
       jumpFilter = new KeyActionFilter(keyActions, new []{ KeyAction.Translate });
       jumpFilter.OnDown += (action) => isJumping = true;
@@ -50,13 +64,29 @@ namespace RDG.Chop_Chop.Scripts.Player {
       yStack = new KeyActionStack(keyActions, YAxisMap.Keys.ToArray());
       yStack.OnStackChange += HandleYMovementChange;
       
-      cameras.SetFollowed(transform);
+      cameras.SetFollowed(this);
+
+      attacker = combat.NewAttacker(attackerConfig, animator, this);
+      anim.Add(attacker.AnimTrigger);
+      target = combat.NewTarget();
+
+      attackFilter = new KeyActionFilter(keyActions, new[]{
+        KeyAction.Interact
+      });
+      attackFilter.OnDown += HandleAttack;
+    }
+    private void HandleAttack(KeyAction obj) {
+      motor.Disable();
+      attacker.Attack().ContinueWith(_ => {
+        motor.Enable();
+      });
     }
 
     public void OnDestroy() {
       xStack?.Release();
       yStack?.Release();
       jumpFilter?.Release();
+      attackFilter?.Release();
     }
     
     private void HandleXMovementChange(KeyActionStack.State state) {
@@ -77,12 +107,6 @@ namespace RDG.Chop_Chop.Scripts.Player {
     
     public Vector2 GetDirection() {
       var inCamSpace = cameras.GameCamera.TransformVector(new Vector3(currentDirectionX.x, 0, currentDirectionY.y));
-      Debug.Log(inCamSpace);
-      var normal =  (currentDirectionX + currentDirectionY).normalized;
-      var camForward = Vector3.ProjectOnPlane(cameras.GameCamera.forward, Vector3.up);
-      var myForward = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
-      var rotation = Quaternion.FromToRotation(camForward, myForward);
-      var dir3 = rotation * normal;
       return new Vector2(inCamSpace.x, inCamSpace.z).normalized;
     }
 
@@ -92,6 +116,13 @@ namespace RDG.Chop_Chop.Scripts.Player {
 
     public void FixedUpdate() {
       motor?.FixedUpdate();
+    }
+
+    public void Update() {
+      anim?.Eval();
+    }
+    public Vector3 GetTrackingPoint() {
+      return motor?.GetTrackingPoint() ?? transform.position;
     }
   }
 }
