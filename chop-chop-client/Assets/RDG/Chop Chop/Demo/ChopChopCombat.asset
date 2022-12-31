@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cda93e1c880410ebcc84144bed17c7a, type: 3}
   m_Name: ChopChopCombat
   m_EditorClassIdentifier: 
+  config:
+    combatLayerName: CombatBounds
+    drawDebug: 1

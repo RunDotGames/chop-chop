@@ -5,30 +5,31 @@ using UnityEngine;
 namespace RDG.Chop_Chop.Scripts.Camera {
   public class CameraBeh : MonoBehaviour {
     public CameraSo cameras;
-    public KeyActionsSo keyActions;
+    public KeyActionsRegistrySo keyActions;
+    public KeyActionSo swivelRight;
+    public KeyActionSo swivelLeft;
 
     private KeyActionStack swivelStack;
 
     private float swivelFactor = 0.0f;
     public void Start() {
       swivelStack = new KeyActionStack(keyActions, new[]{
-        KeyAction.MoveLeftSecondary, KeyAction.MoveRightSecondary
+        swivelLeft, swivelRight
       });
       swivelStack.OnStackTopChange += HandleSwivelChange;
     }
-    
-    private void HandleSwivelChange(KeyAction keyAction) {
-      switch (keyAction) {
-        case KeyAction.MoveLeftSecondary:
-          swivelFactor = -1;
-          return;
-        case KeyAction.MoveRightSecondary:
-          swivelFactor = 1;
-          return;
-        default:
-          swivelFactor = 0;
-          return;
+        
+    private void HandleSwivelChange(KeyActionSo keyAction) {
+      if (keyAction == swivelLeft) {
+        swivelFactor = 1;
+        return;
       }
+      if (keyAction == swivelRight) {
+        swivelFactor = -1;
+        return;
+      }
+
+      swivelFactor = 0;
     }
 
     public void Update() {

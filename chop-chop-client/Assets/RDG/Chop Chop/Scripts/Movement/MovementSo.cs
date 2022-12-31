@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace RDG.Chop_Chop.Scripts.Movement {
 
@@ -27,11 +28,6 @@ namespace RDG.Chop_Chop.Scripts.Movement {
 
     private readonly Dictionary<string, Ground> nameToGround = new Dictionary<string, Ground>();
 
-
-    public Motor NewMotor(MotorConfig motorConfig, Rigidbody body, MotorDirector director) {
-      return new Motor(config, motorConfig, body, director, this);
-    }
-
     public void AddGround(Ground ground) {
       ground.Collider.gameObject.layer = LayerMask.NameToLayer(config.groundLayerName);
       nameToGround.Add(ground.Collider.name, ground);
@@ -46,5 +42,6 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       }
       return nameToGround.TryGetValue(collider.name, out var ground) ? ground : null;
     }
+    public MovementConfig Config => config;
   }
 }

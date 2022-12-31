@@ -27,6 +27,10 @@ namespace RDG.Chop_Chop.Scripts.Camera {
       followed = aFollowed;
     }
 
+    public CameraFollowable GetFollowed() {
+      return followed;
+    }
+
     public void Update() {
       if (GameCamera == null || followed == null) {
         return;

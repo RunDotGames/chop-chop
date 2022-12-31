@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ChopChoCameras
   m_EditorClassIdentifier: 
   config:
-    followRotation: {x: -45, y: 180}
-    followDistance: 20
+    followRotation: {x: -28.25, y: 180}
+    followDistance: 15
     followFactor: 9.25
     swivelSpeed: 100

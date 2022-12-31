@@ -9,31 +9,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c240e36972cb5de41b9c791afb5b2bde, type: 3}
+  m_Script: {fileID: 11500000, guid: 0d238d2d7ef976741b9600de8a4f1ded, type: 3}
   m_Name: ChopChopKeyActions
   m_EditorClassIdentifier: 
-  bindings:
-  - action: 0
-    key: 97
-    mouseButton: -1
-  - action: 1
-    key: 100
-    mouseButton: -1
-  - action: 2
-    key: 119
-    mouseButton: -1
-  - action: 3
-    key: 115
-    mouseButton: -1
-  - action: 6
-    key: 32
-    mouseButton: -1
-  - action: 7
-    key: 276
-    mouseButton: -1
-  - action: 8
-    key: 275
-    mouseButton: -1
-  - action: 4
+  registeredBindings:
+  - action: {fileID: 11400000, guid: 6658a4f50d59a6f43b251e21e0320a8f, type: 2}
     key: 0
     mouseButton: 0
+  - action: {fileID: 11400000, guid: da6b16fc8910e2140a77778d957951bd, type: 2}
+    key: 32
+    mouseButton: -1
+  - action: {fileID: 11400000, guid: 91841e12c77674c4f82681e5bb620259, type: 2}
+    key: 119
+    mouseButton: -1
+  - action: {fileID: 11400000, guid: 65fedea1033b9f641825416406cb5d73, type: 2}
+    key: 115
+    mouseButton: -1
+  - action: {fileID: 11400000, guid: 6aa363a6008d64145a84fe8986f3fb1c, type: 2}
+    key: 97
+    mouseButton: -1
+  - action: {fileID: 11400000, guid: 0192ac6aad22b0a44b8a53016a9d6234, type: 2}
+    key: 100
+    mouseButton: -1
