@@ -99,6 +99,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
         HitCache,
         combatInterface.HitLayer
       );
+      Debug.Log(hitCount);
       for (var i = 0; i < hitCount; i++) {
         var collider = HitCache[i];
         var rootPosition = combatParams.Root.position;
@@ -111,6 +112,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
         if (angle > combatParams.Config.attackAngle) {
           continue;
         }
+        Debug.Log("SEND");
         var target = combatInterface.ProcessAttack(collider, combatParams.Config.attackDamage, combatParams.Faction);
         combatParams.Events.onAttackStrike?.Invoke(this, target);
       }

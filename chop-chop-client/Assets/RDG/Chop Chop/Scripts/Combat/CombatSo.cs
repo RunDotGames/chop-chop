@@ -42,9 +42,10 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       if (target == null) {
         return null;
       }
-      if (target.Faction.ID != fromFaction.ID) {
+      if (target.Faction.ID.Equals(fromFaction.ID)) {
         return null;
       }
+      
       return !target.TakeAttack(damage) ? null : target;
 
     }

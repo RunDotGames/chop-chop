@@ -2,7 +2,8 @@
 using RDG.Chop_Chop.Scripts.Faction;
 using UnityEngine;
 using UnityEngine.Events;
-
+using Sirenix.OdinInspector;
+  
 namespace RDG.Chop_Chop.Scripts.Combat {
   
   [Serializable]
@@ -35,8 +36,11 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     [SerializeField] private CombatTargetConfig config;
     [SerializeField] private CombatTargetEvents events;
 
+
+    [SerializeField, ReadOnlyAttribute] private float currentHealth;
+
     private CombatTargetState state;
-    public  float CurrentHealth { get; private set; }
+    public float CurrentHealth => currentHealth;
     
     public Guid ID { get; private set; }
     public FactionSo Faction => faction;
@@ -47,7 +51,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     public void Start() {
       ID = Guid.NewGuid();
       state = CombatTargetState.Alive;
-      CurrentHealth = config.startHealth;
+      currentHealth = config.startHealth;
       if (target == null) {
         target = GetComponentInChildren<Collider>();
       }
@@ -69,10 +73,11 @@ namespace RDG.Chop_Chop.Scripts.Combat {
         return false;
       }
       
-      CurrentHealth = Math.Max(0, CurrentHealth - damage);
+      currentHealth = Math.Max(0, CurrentHealth - damage);
       if (damage > 0) {
         events.onHealthChange?.Invoke(this);
       }
+      Debug.Log("im hit");
       events.onHit?.Invoke(this);
       if (CurrentHealth > 0) {
         return true;
