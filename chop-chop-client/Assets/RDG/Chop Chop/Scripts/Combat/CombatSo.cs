@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using RDG.Chop_Chop.Scripts.Faction;
 using UnityEngine;
 
@@ -25,23 +24,24 @@ namespace RDG.Chop_Chop.Scripts.Combat {
   public class CombatSo: ScriptableObject {
 
     [SerializeField] private CombatConfig config;
+
+    private bool isEnabled;
     
     private readonly Dictionary<string, CombatTarget> nameToTarget = new Dictionary<string, CombatTarget>();
-    
+    public int HitLayer { get; private set; }
+    public bool DrawDebug => config.drawDebug;
 
-    public CombatAttacker NewAttacker(CombatAttackerParameters combatParams) {
-      return new CombatAttacker(combatParams, new CombatAttackerInterface(
-        LayerMask.GetMask(config.combatLayerName),
-        ProcessAttack,
-        config.drawDebug
-      ));
-    }
 
-    private CombatTarget ProcessAttack(Collider collider, float damage, FactionSo fromFaction) {
+    public CombatTarget ProcessAttack(Collider collider, float damage, FactionSo fromFaction) {
+      if (!isEnabled) {
+        return null;
+      }
+      
       var target = GetTarget(collider);
       if (target == null) {
         return null;
       }
+      
       if (target.Faction.ID.Equals(fromFaction.ID)) {
         return null;
       }
@@ -66,6 +66,15 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       }
       
       return nameToTarget.TryGetValue(collider.name, out var target) ? target : null;
+    }
+    public void Enable() {
+      isEnabled = true;
+      HitLayer = LayerMask.GetMask(config.combatLayerName);
+    }
+
+    public void Disable() {
+      isEnabled = false;
+      HitLayer = -1;
     }
   }
 }

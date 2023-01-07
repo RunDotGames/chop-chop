@@ -4,13 +4,14 @@ using UnityEngine;
 
 namespace RDG.Chop_Chop.Scripts.Combat {
   
+  
   public class CombatAttackerAnimTrigger : AnimationTrigger {
     private readonly float attackAnimSpeed;
-    private readonly CombatAttacker attacker;
+    private readonly CombatAttackerBeh attacker;
     
     private float priorSpeed;
     
-    public CombatAttackerAnimTrigger(Animator anim, string attackAnimName, CombatAttacker attacker) {
+    public CombatAttackerAnimTrigger(Animator anim, string attackAnimName, CombatAttackerBeh attacker) {
       AnimName = attackAnimName;
       attackAnimSpeed = -1.0f;
       foreach (var clip in anim.runtimeAnimatorController.animationClips) {
@@ -46,8 +47,14 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     [SerializeField] private AnimationTriggersBeh anim;
     [SerializeField] private CombatAttackerBeh attacker;
     [SerializeField] private string attackAnimName = "Attack";
+    
     public void Awake() {
-      anim.AddTrigger(new CombatAttackerAnimTrigger(anim.Anim, attackAnimName, attacker.CombatAttacker));
+      var animator = GetComponentInChildren<Animator>();
+      anim.AddTrigger(new CombatAttackerAnimTrigger(
+        animator,
+        attackAnimName,
+        attacker)
+      );
     }
   }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using RDG.UnityUtil;
 using UnityEngine;
 
 namespace RDG.Chop_Chop.Scripts.Animation {
   public class AnimationTriggersBeh : MonoBehaviour {
 
-    [SerializeField] private Animator anim;
+    private Animator anim;
+    
     private readonly List<AnimationTrigger> triggers = new();
     
     private AnimationTrigger current;
@@ -19,13 +20,9 @@ namespace RDG.Chop_Chop.Scripts.Animation {
     public Animator Anim => anim;
 
     public void Awake() {
-      if (anim != null) {
-        return;
-      }
-
       anim = GetComponentInChildren<Animator>();
       if (anim == null) {
-        throw new Exception("animation triggers requires assigned or nested animator");
+        throw new Exception("Anim Triggers requires child animator");
       }
     }
     
