@@ -340,6 +340,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     public void OnDestroy() {
       events.Release();
     }
+
   }
   
 }

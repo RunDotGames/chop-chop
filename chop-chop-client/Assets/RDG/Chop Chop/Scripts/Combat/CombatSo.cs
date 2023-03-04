@@ -11,9 +11,12 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     public FactionSo Faction { get; }
     public Collider Collider { get; }
 
-    public bool TakeAttack(float damage);
+    public void TakeAttack(float damage);
+    public bool IsTargetable { get; }
+    
+    public GameObject Root { get; }
   }
-  
+   
   [Serializable]
   public class CombatConfig {
     public string combatLayerName;
@@ -32,24 +35,6 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     public bool DrawDebug => config.drawDebug;
 
 
-    public CombatTarget ProcessAttack(Collider collider, float damage, FactionSo fromFaction) {
-      if (!isEnabled) {
-        return null;
-      }
-      
-      var target = GetTarget(collider);
-      if (target == null) {
-        return null;
-      }
-      
-      if (target.Faction.ID.Equals(fromFaction.ID)) {
-        return null;
-      }
-      
-      return !target.TakeAttack(damage) ? null : target;
-
-    }
-
     public void AddTarget(CombatTarget target) {
       target.Collider.gameObject.layer = LayerMask.NameToLayer(config.combatLayerName);
       target.Collider.name = $"CombatTarget-{target.ID}";
@@ -60,8 +45,8 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       nameToTarget.Remove(target.Collider.name);
     }
 
-    private CombatTarget GetTarget(Collider collider) {
-      if (collider == null) {
+    public CombatTarget GetTarget(Collider collider) {
+      if (collider == null || !isEnabled) {
         return null;
       }
       

@@ -12,7 +12,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     public MovementSo movement;
 
     
-    public void Start() {
+    public void Awake() {
       Id = Guid.NewGuid();
       Collider = GetComponentInChildren<Collider>();
       Collider.name = "ground: " + Id;

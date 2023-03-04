@@ -7,6 +7,14 @@
       "dependencies": {},
       "hash": "bf87091e912a688bd3829885d93a65a8f408e077"
     },
+    "com.rundotgames.unityfsm": {
+      "version": "file:F:/Projects/rdg-unity-fsm",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.rundotgames.unityutil": "git://github.com/RunDotGames/rdg-unity-fsm.git"
+      }
+    },
     "com.rundotgames.unityinput": {
       "version": "file:F:/Projects/rdg-unity-input",
       "depth": 0,

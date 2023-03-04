@@ -40,7 +40,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     }
     public string AnimName => config.idleAnimName;
     public bool Eval(Animator _) {
-      return !motor.IsRequestLocked && motor.LastMoveDirection.sqrMagnitude == 0;
+      return motor.IsRequestLocked || motor.LastMoveDirection.sqrMagnitude == 0;
     }
     
     public void OnExit(Animator _){}

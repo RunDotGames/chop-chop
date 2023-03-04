@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using RDG.Chop_Chop.Scripts.Faction;
+using RDG.Chop_Chop.Scripts.Util;
 using RDG.UnityUtil;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,36 +24,39 @@ namespace RDG.Chop_Chop.Scripts.Combat {
 
   [Serializable]
   public class CombatAttackEvents {
-    public UnityEvent<CombatAttackerBeh> onAttackStart;
-    public UnityEvent<CombatAttackerBeh, CombatTarget> onAttackStrike;
-    public UnityEvent<CombatAttackerBeh> onAttackStop;
+    public UnityEvent<GameObject> onAttackStart;
+    public UnityEvent<GameObject, GameObject> onAttackStrike; //attacker, attacked
+    public UnityEvent<GameObject> onAttackStop;
+    public UnityEvent<GameObject, bool> onPossibleTargetsModified;
     
-
     public void Release() {
       onAttackStart.RemoveAllListeners();
       onAttackStop.RemoveAllListeners();
       onAttackStrike.RemoveAllListeners();
+      onPossibleTargetsModified.RemoveAllListeners();
     }
   }
 
   public class CombatAttackerBeh : MonoBehaviour {
     [SerializeField] private CombatSo combat;
-    [SerializeField] private FactionSo faction;
+    [SerializeField] private FactionedBeh faction;
     [SerializeField] private CombatAttackConfig config;
     [SerializeField] private CombatAttackEvents events;
-
-    private static readonly Collider[] HitCache = new Collider[100];
     
     public CombatAttackerState State { get; private set; }
-    public float AttackSpeed => config.attackSpeed;
     
+    public float AttackSpeed => config.attackSpeed;
+
+    private Dictionary<CombatTarget, GameObject> possibleTargets = new();
+
     public void Awake() {
       if (config.attackDelayFactor >= 1.0f || config.attackDelayFactor <= 0) {
         throw new Exception($"attack delay factor invalid {config.attackDelayFactor}");
       }
       State = CombatAttackerState.Idle;
+      possibleTargets.Clear();
     }
-
+    
     public async void Attack() {
       //We can only attack if we are ready to
       if (State != CombatAttackerState.Idle) {
@@ -60,21 +64,39 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       }
       
       State = CombatAttackerState.AttackPre;
-      events.onAttackStart.Invoke(this);
+      events.onAttackStart.Invoke(gameObject);
       await TaskUtils.WaitCoroutine(this, config.attackSpeed * config.attackDelayFactor);
       if (State != CombatAttackerState.AttackPre) { //if we got interrupted during await
         return;
       }
       
       State = CombatAttackerState.AttackPost;
+      foreach (var target in possibleTargets.Keys) {
+        target.TakeAttack(config.attackDamage);
+        events.onAttackStrike.Invoke(gameObject, target.Root);
+      }
+      await TaskUtils.WaitCoroutine(this, config.attackSpeed * (1 - config.attackDelayFactor));
+      if (State != CombatAttackerState.AttackPost) { //if we got interrupted during await
+        return;
+      }
+      
+      events.onAttackStop?.Invoke(gameObject);
+      State = CombatAttackerState.Idle;
+    }
+    
+   
+    private void GatherPossibleTargets() {
+      var targets = new Dictionary<CombatTarget, GameObject>();
+      
       var hitCount = Physics.OverlapSphereNonAlloc(
         transform.position,
         config.attackDistance,
-        HitCache,
+        CacheUtil.Colliders,
         combat.HitLayer
       );
+     
       for (var i = 0; i < hitCount; i++) {
-        var aCollider = HitCache[i];
+        var aCollider = CacheUtil.Colliders[i];
         var rootPosition = transform.position;
         var direction = aCollider.bounds.ClosestPoint(rootPosition) - rootPosition;
         var angle = Mathf.Abs(Vector3.Angle(transform.forward, direction.normalized));
@@ -85,22 +107,29 @@ namespace RDG.Chop_Chop.Scripts.Combat {
           continue;
         }
         
-        var target = combat.ProcessAttack(aCollider, config.attackDamage, faction);
-        events.onAttackStrike.Invoke(this, target);
+        var target = combat.GetTarget(aCollider);
+        if (target.Faction == faction.Faction || !target.IsTargetable) {
+          continue;
+        }
+
+        targets.Add(target, target.Root);
+        if (possibleTargets.ContainsKey(target)) {
+          possibleTargets.Remove(target);
+          continue;
+        }
+        
+        events.onPossibleTargetsModified.Invoke(target.Root, true);
       }
-      await TaskUtils.WaitCoroutine(this, config.attackSpeed * (1 - config.attackDelayFactor));
-      if (State != CombatAttackerState.AttackPost) { //if we got interrupted during await
-        return;
+      foreach (var target in possibleTargets.Values) {
+        events.onPossibleTargetsModified.Invoke(target, false);
       }
-      
-      events.onAttackStop?.Invoke(this);
-      State = CombatAttackerState.Idle;
+      possibleTargets = targets;
     }
-  
+
 
     public void OnDisable() {
       if (State != CombatAttackerState.Idle) {
-        events.onAttackStop?.Invoke(this);
+        events.onAttackStop?.Invoke(gameObject);
       }
       State = CombatAttackerState.Locked;
     }
@@ -110,6 +139,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     }
 
     public void Update() {
+      GatherPossibleTargets();
       if (!combat.DrawDebug) {
         return;
       }
@@ -127,5 +157,6 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       events.Release();
       State = CombatAttackerState.Locked;
     }
+    
   }
 }

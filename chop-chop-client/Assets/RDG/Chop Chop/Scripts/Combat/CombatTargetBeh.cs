@@ -9,6 +9,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
   [Serializable]
   public class CombatTargetConfig {
     public float startHealth = 100;
+    public bool isTargetable =  true;
   }
 
   [Serializable]
@@ -29,8 +30,10 @@ namespace RDG.Chop_Chop.Scripts.Combat {
   }
   public class CombatTargetBeh : MonoBehaviour, CombatTarget {
 
+    [SerializeField] private GameObject root;
+    
     [SerializeField] private CombatSo combat;
-    [SerializeField] private FactionSo faction;
+    [SerializeField] private FactionedBeh faction;
     
     [SerializeField] private Collider target;
     [SerializeField] private CombatTargetConfig config;
@@ -38,17 +41,17 @@ namespace RDG.Chop_Chop.Scripts.Combat {
 
 
     [SerializeField, ReadOnlyAttribute] private float currentHealth;
-
+    
     private CombatTargetState state;
     public float CurrentHealth => currentHealth;
     
     public Guid ID { get; private set; }
-    public FactionSo Faction => faction;
+    public FactionSo Faction => faction.Faction;
     public Collider Collider => target;
 
     public CombatTargetEvents Events => events;
 
-    public void Start() {
+    public void Awake() {
       ID = Guid.NewGuid();
       state = CombatTargetState.Alive;
       currentHealth = config.startHealth;
@@ -68,9 +71,9 @@ namespace RDG.Chop_Chop.Scripts.Combat {
     }
 
 
-    public bool TakeAttack(float damage) {
-      if (damage <= 0 || state == CombatTargetState.Dead || !isActiveAndEnabled) {
-        return false;
+    public void TakeAttack(float damage) {
+      if (damage <= 0 || !IsTargetable) {
+        return;
       }
       
       currentHealth = Math.Max(0, CurrentHealth - damage);
@@ -80,12 +83,14 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       Debug.Log("im hit");
       events.onHit?.Invoke(this);
       if (CurrentHealth > 0) {
-        return true;
+        return;
       }
 
       state = CombatTargetState.Dead;
       events.onDeath?.Invoke(this);
-      return true;
+      return;
     }
+    public bool IsTargetable => config.isTargetable && state != CombatTargetState.Dead && isActiveAndEnabled;
+    public GameObject Root => root;
   }
 }

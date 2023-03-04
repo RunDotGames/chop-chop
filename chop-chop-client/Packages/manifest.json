@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.rundotgames.unitybutler": "git@github.com:RunDotGames/unity-butler.git",
+    "com.rundotgames.unityfsm": "file:F:/Projects/rdg-unity-fsm",
     "com.rundotgames.unityinput": "file:F:/Projects/rdg-unity-input",
     "com.rundotgames.unityutil": "file:F:/Projects/rdg-unity-util",
     "com.unity.cinemachine": "2.8.9",
