@@ -31,7 +31,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
 
     public string AnimName { get; }
     public bool Eval(Animator _) {
-      return attacker.State is CombatAttackerState.AttackPre or CombatAttackerState.AttackPre;
+      return attacker.State is CombatAttackerState.AttackPre or CombatAttackerState.AttackPost;
     }
 
     public void OnEnter(Animator anim) {

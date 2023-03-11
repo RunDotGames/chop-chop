@@ -17,6 +17,7 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       Collider = GetComponentInChildren<Collider>();
       Collider.name = "ground: " + Id;
       var body = GetComponentInChildren<Rigidbody>();
+      
       if (body != null) {
         body.isKinematic = true;
       } 

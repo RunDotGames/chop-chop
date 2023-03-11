@@ -53,7 +53,7 @@ namespace RDG.Chop_Chop.Scripts.Sense {
           continue;
         }
         var heightDiff = visible.VisibleCollider.transform.position.y - transform.position.y;
-        if (heightDiff < 0 || heightDiff > config.height){
+        if ( Math.Abs(heightDiff) > config.height){
           continue;
         }
         
