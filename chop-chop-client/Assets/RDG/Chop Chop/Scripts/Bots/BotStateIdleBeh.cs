@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using RDG.Chop_Chop.Scripts.Sense;
+using RDG.Chop_Chop.Scripts.Util;
 using RDG.UnityFSM;
 using UnityEngine;
 namespace RDG.Chop_Chop.Scripts.Bots {
@@ -10,16 +10,16 @@ namespace RDG.Chop_Chop.Scripts.Bots {
     [SerializeField] private FiniteStateKeySo myStateKey;
     [SerializeField] private FiniteStateKeySo chaseStateKey;
     
-    [SerializeField] private GameObject chaseVisionRoot;
+    private readonly EventedCollection<GameObject> visibleTargets = new();
     
-    private Vision chaseVision;
     public FiniteStateKeySo Key => myStateKey;
 
-    public void Awake() {
-      chaseVision = chaseVisionRoot.GetComponentInChildren<Vision>();
-    }
     public FiniteStateKeySo UpdateState(FiniteStateKeySo priorActive) {
-      return chaseVision.Visible.Any() ? chaseStateKey : myStateKey;
+      return visibleTargets.Items.Any() ? chaseStateKey : myStateKey;
+    }
+    
+    public void ModifyChaseTargets(GameObject target, bool isAdded) {
+      visibleTargets.OnChange(target, isAdded);
     }
   
   }

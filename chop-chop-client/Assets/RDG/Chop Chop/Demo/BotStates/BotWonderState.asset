@@ -9,11 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc65ff77f4154e6e9eb69dd5aadab525, type: 3}
-  m_Name: ChopChoCameras
+  m_Script: {fileID: 11500000, guid: bb73b7f04885458489522a8e723e5bc9, type: 3}
+  m_Name: BotWonderState
   m_EditorClassIdentifier: 
-  config:
-    followRotation: {x: -28.25, y: 180}
-    followDistance: 31
-    followFactor: 9.25
-    swivelSpeed: 100

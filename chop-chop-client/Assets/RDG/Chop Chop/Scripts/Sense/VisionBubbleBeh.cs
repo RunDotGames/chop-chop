@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using RDG.Chop_Chop.Scripts.Util;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace RDG.Chop_Chop.Scripts.Sense {
 
@@ -20,14 +18,18 @@ namespace RDG.Chop_Chop.Scripts.Sense {
     [SerializeField] private SenseSo sense;
     [SerializeField] private VisionBubbleConfig config;
     [SerializeField] private VisionEvents events;
-
+    [SerializeField] private GameObject filterRoot;
+    
     private HashSet<GameObject> visionCache = new();
+    private GameObjectFilter[] filters = {};
     
     public float ViewFactor { get; set; }
 
 
     public void Awake() {
       ViewFactor = 1.0f;
+      filterRoot = filterRoot == null ? gameObject : filterRoot;
+      filters = filterRoot.GetComponentsInChildren<GameObjectFilter>();
     }
     public void OnDisable() {
       foreach (var visible in visionCache) {
@@ -52,24 +54,37 @@ namespace RDG.Chop_Chop.Scripts.Sense {
         if (visible == null) {
           continue;
         }
-        var heightDiff = visible.VisibleCollider.transform.position.y - transform.position.y;
+        var heightDiff = visible.Root.transform.position.y - transform.position.y;
         if ( Math.Abs(heightDiff) > config.height){
           continue;
         }
-        
-        visibleNow.Add(visible.VisibleCollider.gameObject);
-        if (!visionCache.Contains(visible.VisibleCollider.gameObject)) {
-          events.onVisibilityChanged.Invoke(visible.VisibleCollider.gameObject, true);
+
+        if (!CheckFilters(visible.Root.gameObject)) {
           continue;
         }
         
-        visionCache.Remove(visible.VisibleCollider.gameObject);
+        visibleNow.Add(visible.Root.gameObject);
+        if (!visionCache.Contains(visible.Root.gameObject)) {
+          events.onVisibilityChanged.Invoke(visible.Root.gameObject, true);
+          continue;
+        }
+        
+        visionCache.Remove(visible.Root.gameObject);
       }
 
       foreach (var visible in visionCache) {
         events.onVisibilityChanged.Invoke(visible, false);
       }
       visionCache = visibleNow;
+    }
+
+    private bool CheckFilters(GameObject go) {
+      foreach (var filter in filters) {
+        if (!filter.Check(go)) {
+          return false;
+        }
+      }
+      return true;
     }
     public IEnumerable<GameObject> Visible => visionCache;
 

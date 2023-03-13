@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using RDG.Chop_Chop.Scripts.Sense;
+using RDG.Chop_Chop.Scripts.Faction;
 using RDG.Chop_Chop.Scripts.Util;
 using RDG.UnityFSM;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace RDG.Chop_Chop.Scripts.Bots {
@@ -29,62 +28,57 @@ namespace RDG.Chop_Chop.Scripts.Bots {
     public FiniteStateKeySo Key => myStateKey;
 
     private Vector3 chaseTarget;
-    private NavMeshPath chasePath;
-    private int pathPoint;
+    private bool hasChaseTarget;
+    private NavMeshFollower follower;
 
     public FiniteStateKeySo UpdateState(FiniteStateKeySo priorActive) {
-      if (!chaseTargets.Items.Any()) {
-        chasePath = null;
-        return Exit(idleStateKey);
+      if (priorActive != myStateKey) {
+        chaseTarget = Vector3.zero;
+        hasChaseTarget = false;
+        events.onEnter.Invoke();
+        follower = new NavMeshFollower(transform, .1f);
       }
       
       if (attackTargets.Items.Any()) {
-        chasePath = null;
         return Exit(attackStateKey);
       }
 
-      if (priorActive != myStateKey) {
-        events.onEnter.Invoke();
-      }
-
-      var targetPosition = chaseTargets.Items.First().transform.position;
-      if (chasePath == null || (targetPosition - chaseTarget).magnitude > .333f) {
-        chaseTarget = targetPosition;
-        chasePath = new NavMeshPath();
-        NavMesh.CalculatePath(transform.position, targetPosition, NavMesh.AllAreas, chasePath);
-        pathPoint = 0;
-      }
-      if (chasePath.status != NavMeshPathStatus.PathComplete) {
-        Debug.LogError(chasePath.status);
-        return myStateKey;
+      var foundTarget = GetNearestTarget(transform.position, chaseTargets.Items, out var nearest);
+      if (!foundTarget && !hasChaseTarget) {
+        return Exit(idleStateKey);
       }
       
-      while (CheckPathPoint(pathPoint)) {
-        pathPoint++;
+      // If I was not pathing or the path target has sufficiently changed
+      if (!follower.HasPath || (chaseTarget - nearest).magnitude > .33f) {
+        chaseTarget = follower.NavTo(nearest) ? nearest : chaseTarget;
+        hasChaseTarget = hasChaseTarget || chaseTarget == nearest;
+      }
+      var dir = follower.Update();
+      if (dir == Vector2.zero) {
+        return Exit(idleStateKey);
       }
       
-      if (pathPoint >= chasePath.corners.Length) {
-        Debug.LogError("oob");
-        return myStateKey;
-      }
-      
-      for (var i = 0; i < chasePath.corners.Length - 1; i++)
-        
-        Debug.DrawLine(chasePath.corners[i], chasePath.corners[i + 1], Color.blue);
-
-      var delta = chasePath.corners[pathPoint] - transform.position;
-      Debug.Log(delta);
-      events.onMoveRequested.Invoke(new Vector2(delta.x, delta.z).normalized);
+      events.onMoveRequested.Invoke(dir);
       return myStateKey;
     }
 
-    private bool CheckPathPoint(int position) {
-      if (pathPoint >= chasePath.corners.Length) {
-        return false;
+    private static bool GetNearestTarget(Vector3 position, IEnumerable<GameObject> targets, out Vector3 nearest) {
+      var nearestDistance = float.MaxValue;
+      var nearestPoint = Vector3.zero;
+      var found = false;
+      foreach (var aTarget in targets) {
+        aTarget.GetComponentInChildren<FactionedBeh>();
+        var dist = (position - aTarget.transform.position).magnitude;
+        if (dist > nearestDistance) {
+          continue;
+        }
+          
+        found = true;
+        nearestDistance = dist;
+        nearestPoint = aTarget.transform.position;
       }
-      var delta = transform.position - chasePath.corners[pathPoint];
-      delta.y = 0;
-      return delta.magnitude < .1f;
+      nearest = nearestPoint;
+      return found;
     }
     
     private FiniteStateKeySo Exit(FiniteStateKeySo exitVal) {

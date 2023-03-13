@@ -25,7 +25,7 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       Spawn();
     }
 
-    private void Spawn() {
+    public void Spawn() {
       var spawned = Instantiate(toSpawnPrefab, transform);
       var myTransform = transform;
       spawned.transform.position = myTransform.position;

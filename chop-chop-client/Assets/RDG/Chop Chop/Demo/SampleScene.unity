@@ -106,15 +106,15 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 1
+    agentRadius: 1.2
     agentHeight: 2
-    agentSlope: 45
+    agentSlope: 30
     agentClimb: 0.55
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
-    cellSize: 0.33333334
+    cellSize: 0.4
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -1046,7 +1046,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 420125735}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.5, z: 0.9}
+  m_LocalPosition: {x: -0, y: -0.39, z: 0.9}
   m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1282,7 +1282,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 464932486}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.31, z: -0.5}
   m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1480,7 +1480,7 @@ MonoBehaviour:
   combat: {fileID: 11400000, guid: 2ed0f3e67dd143c4b8b2430d4d14d66a, type: 2}
   faction: {fileID: 2111988772}
   config:
-    attackSpeed: 1.2
+    attackSpeed: 4
     attackDelayFactor: 0.2
     attackDistance: 3
     attackDamage: 100
@@ -3994,7 +3994,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1262321694}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.98, z: -31.880001}
+  m_LocalPosition: {x: 0, y: 4.08, z: -31.880001}
   m_LocalScale: {x: 0.09483342, y: 1, z: 0.1280876}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4462,6 +4462,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1420168511}
   - component: {fileID: 1420168512}
+  - component: {fileID: 1420168513}
+  - component: {fileID: 1420168514}
   m_Layer: 0
   m_Name: vision
   m_TagString: Untagged
@@ -4498,7 +4500,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sense: {fileID: 11400000, guid: b11cb9433e6f80c41ad69dd2567ee06f, type: 2}
   config:
-    distance: 20
+    distance: 30
     height: 6
   events:
     onVisibilityChanged:
@@ -4517,6 +4519,45 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+        - m_Target: {fileID: 1924373865}
+          m_TargetAssemblyTypeName: RDG.Chop_Chop.Scripts.Bots.BotStateIdleBeh, Assembly-CSharp
+          m_MethodName: ModifyChaseTargets
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  filterRoot: {fileID: 0}
+--- !u!114 &1420168513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420168510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cfaaea54f734a1a833e3e983149836c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 69137835}
+--- !u!114 &1420168514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420168510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd995435f66548e3925db283e0291ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxAngle: 70
 --- !u!1 &1431997582
 GameObject:
   m_ObjectHideFlags: 0
@@ -7948,7 +7989,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1614311022}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 19.8, y: -0.5, z: 13.4}
+  m_LocalPosition: {x: 19.8, y: -0.37, z: 13.4}
   m_LocalScale: {x: 65.193, y: 1, z: 75.273026}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10927,7 +10968,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myStateKey: {fileID: 11400000, guid: aae08272f4edb9a4880461f81e840310, type: 2}
   chaseStateKey: {fileID: 11400000, guid: f9987cce1bac0e54389ec69dce94a1ef, type: 2}
-  chaseVisionRoot: {fileID: 1420168510}
 --- !u!1 &1926420672
 GameObject:
   m_ObjectHideFlags: 0
