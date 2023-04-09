@@ -56,6 +56,18 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       State = CombatAttackerState.Idle;
       possibleTargets.Clear();
     }
+
+    public void Lock() {
+      State = CombatAttackerState.Locked;
+    }
+
+    public void Unlock() {
+      if (State != CombatAttackerState.Locked) {
+        return;
+      }
+      
+      State = CombatAttackerState.Idle;
+    }
     
     public async void Attack() {
       //We can only attack if we are ready to

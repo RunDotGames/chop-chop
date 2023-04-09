@@ -12,10 +12,14 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     public float rotationSpeed = 10.0f;
     public float radius = 1.0f;
     public float height = 1.0f;
+    public float dashDurationSeconds = 1.0f;
+    public float dashFactor = 2.0f;
   }
 
   [Serializable]
   public class MotorEvents {
+    public UnityEvent onDashStart;
+    public UnityEvent onDashStop;
     public UnityEvent onGrounded;
     public UnityEvent onJump;
     public void Release() {
@@ -25,10 +29,9 @@ namespace RDG.Chop_Chop.Scripts.Movement {
   }
 
   public class MotorBeh : MonoBehaviour {
-    enum JumpState {
+    public enum JumpState {
       Able, InProgress, Exhausted
     }
-    
     class MovementInfo {
       public Vector3 Position { get; set; }
       public Quaternion Rotation { get; set; }
@@ -37,7 +40,8 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       public bool IsJumping { get; set; }
       public bool IsGrounded { get; set; }
     }
-    
+
+
     private const int CACHE_SIZE = 100;
     // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
     private const RigidbodyConstraints FREEZE_ROTATION = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
@@ -51,15 +55,21 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     [SerializeField] private MotorEvents events;
     [SerializeField] private Rigidbody body;
     
+    private GroundBeh[] myGround = {};
+    private LayerMask groundLayerMask;
+    
+    private bool isJumpRequested;
+    private Vector2 moveRequested;
+    private bool isRequestLocked;
+    private bool isDashRequested;
+    
     private float fallVelocity;
     private float jumpDuration;
     private JumpState jumpState;
     private bool isGrounded;
-    private bool isJumpRequested;
-    private Vector2 moveRequested;
-    private GroundBeh[] myGround = {};
-    private LayerMask groundLayerMask;
-    private bool isRequestLocked;
+    private float dashStartTime;
+    private Vector3 dashFacing;
+    
     public void Start() {
       body.constraints = FREEZE_ROTATION;
       myGround = body.GetComponentsInChildren<GroundBeh>();
@@ -74,6 +84,14 @@ namespace RDG.Chop_Chop.Scripts.Movement {
       isJumpRequested = jumpFlag;
     }
 
+    public void RequestDash() {
+      if (isRequestLocked) {
+        return;
+      }
+      
+      isDashRequested = true;
+    }
+
     public void LockRequests() {
       isRequestLocked = true;
     }
@@ -83,8 +101,9 @@ namespace RDG.Chop_Chop.Scripts.Movement {
     }
 
     public bool IsRequestLocked => isRequestLocked;
-
+    
     public Vector2 LastMoveDirection { get; private set; }
+    
 
     public void FixedUpdate() {
       var bodyTransform = body.transform;
@@ -99,7 +118,8 @@ namespace RDG.Chop_Chop.Scripts.Movement {
         IsJumping = false,
         RemainingDistance = config.moveSpeed * Time.fixedDeltaTime
       };
-      
+
+      UpdateStateForDash(info);
       UpdateStateForJumpUp(info);
       UpdateStateForForwardRotation(info);
       UpdateStateForGroundAngle(info);
@@ -113,6 +133,35 @@ namespace RDG.Chop_Chop.Scripts.Movement {
 
       UpdateStateForGroundLanding(info);
       LastMoveDirection = directorDir;
+    }
+    
+    public bool IsDashing { get; private set; }
+
+    public float DashDuration => config.dashDurationSeconds;
+
+    public JumpState Jump => jumpState;
+
+    public bool IsGrounded => isGrounded;
+
+    private void UpdateStateForDash(MovementInfo info) {
+      if (isDashRequested && !IsDashing && !isRequestLocked) {
+        IsDashing = true;
+        isDashRequested = false;
+        events.onDashStart.Invoke();
+        dashStartTime = Time.time;
+        dashFacing = info.ForwardNormal.magnitude > 0 ? info.ForwardNormal : body.transform.forward;
+      }
+      if (IsDashing && Time.time - dashStartTime >= config.dashDurationSeconds) {
+        isDashRequested = false;
+        IsDashing = false;
+        events.onDashStop.Invoke();
+      }
+      if (!IsDashing) {
+        return;
+      }
+      info.ForwardNormal = dashFacing;
+      info.RemainingDistance *= config.dashFactor;
+
     }
     
     // Handle landing back on the ground

@@ -35,11 +35,19 @@ namespace RDG.Chop_Chop.Scripts.Animation {
         if (trigger == current) {
           return;
         }
-        
-        current?.OnExit(anim);
+
+        if (current is AnimationTriggerEvented preEvented) {
+          preEvented.OnExit(anim);
+        }
         current = trigger;
-        current.OnEnter(anim);
-        anim.Play(trigger.AnimName);
+        var animOffset = float.NegativeInfinity;
+        if (current is AnimationTriggerOffset offset) {
+          animOffset = offset.AnimOffset;
+        }
+        anim.Play(trigger.AnimName, -1, animOffset);
+        if (current is AnimationTriggerEvented postEvented) {
+          postEvented.OnEnter(anim);
+        }
         return;
       }
     }

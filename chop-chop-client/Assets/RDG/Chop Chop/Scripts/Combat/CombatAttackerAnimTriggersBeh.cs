@@ -5,27 +5,15 @@ using UnityEngine;
 namespace RDG.Chop_Chop.Scripts.Combat {
   
   
-  public class CombatAttackerAnimTrigger : AnimationTrigger {
+  public class CombatAttackerAnimTrigger : AnimationTrigger, AnimationTriggerEvented {
     private readonly float attackAnimSpeed;
     private readonly CombatAttackerBeh attacker;
+    private readonly AnimSpeedNormalizer normalizer;
     
-    private float priorSpeed;
-    
-    public CombatAttackerAnimTrigger(Animator anim, string attackAnimName, CombatAttackerBeh attacker) {
-      AnimName = attackAnimName;
-      attackAnimSpeed = -1.0f;
-      foreach (var clip in anim.runtimeAnimatorController.animationClips) {
-        if (clip.name != attackAnimName) {
-          continue;
-        }
-        
-        attackAnimSpeed = clip.length;
-        break;
-      }
-      if (attackAnimSpeed < 0.0f) {
-        throw new Exception($"Attack Animation {attackAnimName} not found");
-      }
 
+    public CombatAttackerAnimTrigger(Animator anim, string attackAnimName, CombatAttackerBeh attacker) {
+      normalizer = new AnimSpeedNormalizer(anim, attackAnimName, 0);
+      AnimName = attackAnimName;
       this.attacker = attacker;
     }
 
@@ -34,12 +22,11 @@ namespace RDG.Chop_Chop.Scripts.Combat {
       return attacker.State is CombatAttackerState.AttackPre or CombatAttackerState.AttackPost;
     }
 
-    public void OnEnter(Animator anim) {
-      priorSpeed = anim.speed;
-      anim.speed =  attackAnimSpeed / attacker.AttackSpeed;
+    public void OnEnter(Animator _) {
+      normalizer.Apply(attacker.AttackSpeed);
     }
-    public void OnExit(Animator anim) {
-      anim.speed = priorSpeed;
+    public void OnExit(Animator _) {
+      normalizer.Release();
     }
   }
   public class CombatAttackerAnimTriggersBeh : MonoBehaviour {

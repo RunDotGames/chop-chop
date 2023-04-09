@@ -37,3 +37,6 @@ MonoBehaviour:
   - action: {fileID: 11400000, guid: 6584e119f2cf70141ad85f45d337501d, type: 2}
     key: 275
     mouseButton: -1
+  - action: {fileID: 11400000, guid: 6db44122c4afdee4fad184981e846b87, type: 2}
+    key: 113
+    mouseButton: -1
